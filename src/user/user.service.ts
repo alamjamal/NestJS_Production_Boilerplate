@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { Injectable, NotAcceptableException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -15,7 +15,7 @@ export class UserService {
             where: { email: createUserDto.email }
         });
         if (user) {
-            throw new HttpException('User already exists', 400);
+            throw new NotAcceptableException('User already exists');
         }
         return await this.userModel.create<User>({ ...createUserDto });
     }

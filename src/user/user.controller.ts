@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseFilters } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -12,14 +12,12 @@ import {
     ApiOperation,
     ApiTags
 } from '@nestjs/swagger';
-import { UserIdDto } from 'src/common/dto /user-id.dto';
-import { ErrorResponseDto } from 'src/common/dto /error-response.dto';
-import { NotFoundResponseDto } from 'src/common/dto /notfound-response.dto';
-import { HttpExceptionFilter } from 'src/common/filters/http-exception.filter';
+import { UserIdDto } from 'src/common/dto/user-id.dto';
+import { ErrorResponseDto } from 'src/common/dto/error-response.dto';
+import { NotFoundResponseDto } from 'src/common/dto/notfound-response.dto';
 
 @Controller('User')
 @ApiTags('User')
-@UseFilters(HttpExceptionFilter)
 export class UserController {
     constructor(private readonly userService: UserService) {}
 

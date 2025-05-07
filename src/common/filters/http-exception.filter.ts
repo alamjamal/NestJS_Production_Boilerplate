@@ -1,7 +1,7 @@
-// src/common/filters/http-exception.filter.ts
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { ErrorResponseDto } from '../dto /error-response.dto';
+import { ErrorResponseDto } from '../dto/error-response.dto';
+// import { ValidationError } from 'class-validator';
 // import { NotFoundResponseDto } from '../dto /notfound-response.dto';
 
 @Catch()
@@ -13,34 +13,20 @@ export class HttpExceptionFilter implements ExceptionFilter {
         const isProduction = process.env.NODE_ENV === 'production';
 
         let status: number;
-        let errorResponse = new ErrorResponseDto();
+        const errorResponse = new ErrorResponseDto();
 
         // Handle HttpException (known errors)
         if (exception instanceof HttpException) {
             status = exception.getStatus();
             const exceptionResponse = exception.getResponse();
-            // 4xx Client Errors
+            // 4xx Client Errors status === Number(HttpStatus.BAD_REQUEST)
             if (status >= 400 && status < 500) {
-                // Special case for 404 Not Found
-                if (status === Number(HttpStatus.NOT_FOUND)) {
-                    errorResponse.statusCode = status;
-                    errorResponse.message =
-                        typeof exceptionResponse === 'string'
-                            ? exceptionResponse
-                            : (exceptionResponse as ErrorResponseDto).message || 'Resource not Found';
-                }
-                // Other 4xx errors
-                else {
-                    errorResponse = new ErrorResponseDto();
-                    errorResponse.statusCode = status;
-                    errorResponse.message =
-                        typeof exceptionResponse === 'string'
-                            ? exceptionResponse
-                            : (exceptionResponse as ErrorResponseDto).message || 'Client Error';
-
-                    if (!isProduction) {
-                        errorResponse.error = exception.name;
-                    }
+                errorResponse.statusCode = status;
+                errorResponse.message = (exceptionResponse as ErrorResponseDto).message || 'Client Error';
+                errorResponse.errors = (exceptionResponse as ErrorResponseDto).errors;
+                if (!isProduction) {
+                    errorResponse.error = exception.error;
+                    errorResponse.name = exception.name;
                 }
             }
             // 5xx Server Errors
@@ -48,12 +34,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
                 errorResponse.statusCode = status;
                 errorResponse.message = isProduction
                     ? 'Something went wrong'
-                    : typeof exceptionResponse === 'string'
-                      ? exceptionResponse
-                      : (exceptionResponse as ErrorResponseDto).message || 'Client Error';
+                    : (exceptionResponse as ErrorResponseDto).message || 'Server Error';
 
                 if (!isProduction) {
-                    errorResponse.error = exception.name;
+                    errorResponse.errors = (exceptionResponse as ErrorResponseDto).errors;
+                    errorResponse.error = exception.error;
+                    errorResponse.name = exception.name;
                     errorResponse.stack = exception.stack || 'No stack trace available';
                 }
             }
@@ -66,12 +52,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
             if (!isProduction) {
                 errorResponse.error = exception.error;
+                errorResponse.name = exception.name;
                 errorResponse.errors = exception.errors || exception || 'No additional error information';
                 errorResponse.stack = exception.stack || 'No stack trace available';
             }
         }
-
-        // Common fields
 
         response.status(status).json(errorResponse);
     }

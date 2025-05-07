@@ -1,10 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { corsOptions } from './options/corsOptions';
 import setupSwagger from './options/swaggerOptions';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { NotFoundInterceptor } from './common/interceptors/not-found.interceptor';
+// import { CustomValidationPipe } from './common/pipes/validation.pipe';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, {
@@ -17,10 +18,17 @@ async function bootstrap() {
 
     app.useGlobalPipes(
         new ValidationPipe({
-            transform: true
-            // forbidNonWhitelisted: true,
-            // whitelist: true,
-            // disableErrorMessages: process.env.NODE_ENV === 'production',
+            exceptionFactory: (errors) => {
+                const formattedErrors = errors.reduce((acc, error) => {
+                    acc[error.property] = Object.values(error.constraints || {});
+                    return acc;
+                }, {});
+                return new BadRequestException({
+                    statusCode: 400,
+                    message: 'Validation failed',
+                    errors: formattedErrors
+                });
+            }
         })
     );
 

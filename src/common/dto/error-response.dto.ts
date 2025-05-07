@@ -17,10 +17,17 @@ export class ErrorResponseDto {
 
     @ApiProperty({
         type: 'string',
-        example: 'ErrorName',
-        description: 'Detailed Error Name'
+        example: 'Error Message',
+        description: 'Detailed Error Message'
     })
     error: string;
+
+    @ApiProperty({
+        type: 'string',
+        example: 'Error Name',
+        description: 'Detailed Error Name'
+    })
+    name: string;
 
     @ApiProperty({
         type: 'string',
