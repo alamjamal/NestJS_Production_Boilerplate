@@ -21,8 +21,8 @@ import { NotFoundResponseDto } from 'src/common/dto/notfound-response.dto';
 export class UserController {
     constructor(private readonly userService: UserService) {}
 
-    @Post()
-    @ApiOperation({ summary: 'Create a new user' })
+    @Post('/register')
+    @ApiOperation({ summary: 'Register a new user' })
     @ApiBody({ type: CreateUserDto })
     @ApiCreatedResponse({ type: CreateUserDto })
     @ApiForbiddenResponse({ description: 'Forbidden', type: ErrorResponseDto })
