@@ -18,6 +18,13 @@ async function bootstrap() {
 
     app.useGlobalPipes(
         new ValidationPipe({
+            whitelist: true, // this will strip away any properties that don't have decorators
+            forbidNonWhitelisted: true // this will throw an error if extra properties are sent
+        })
+    );
+
+    app.useGlobalPipes(
+        new ValidationPipe({
             exceptionFactory: (errors) => {
                 const formattedErrors = errors.reduce((acc, error) => {
                     acc[error.property] = Object.values(error.constraints || {});

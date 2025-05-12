@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { SequelizeModule } from '@nestjs/sequelize';
+import { AuthModule } from './auth/auth.module';
 // import configuration from '../database/configuration.js';
 // import { User } from './user/entities/user.entity.js';
 
@@ -41,7 +42,8 @@ import { SequelizeModule } from '@nestjs/sequelize';
             })
         }),
 
-        UserModule
+        UserModule,
+        AuthModule
     ],
 
     controllers: [AppController],

@@ -8,7 +8,7 @@ export default function setupSwagger(app: INestApplication) {
         .setExternalDoc('Postman Collection', '/docs-json')
         .setVersion('1.0')
         .addBearerAuth()
-        .addTag('users', 'Users related endpoints')
+        // .addTag('users', 'Users related endpoints')
         // .addTag('auth', 'Authentication related endpoints')
         // .addTag('products', 'Products related endpoints')
         // .addTag('orders', 'Orders related endpoints')

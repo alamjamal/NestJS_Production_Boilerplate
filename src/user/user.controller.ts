@@ -3,10 +3,9 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {
-    ApiBadGatewayResponse,
+    ApiBadRequestResponse,
     ApiBody,
-    ApiCreatedResponse,
-    ApiForbiddenResponse,
+    ApiNotAcceptableResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
@@ -15,17 +14,19 @@ import {
 import { UserIdDto } from 'src/common/dto/user-id.dto';
 import { ErrorResponseDto } from 'src/common/dto/error-response.dto';
 import { NotFoundResponseDto } from 'src/common/dto/notfound-response.dto';
+import { UserDto } from './dto/user-dto';
 
 @Controller('User')
 @ApiTags('User')
 export class UserController {
     constructor(private readonly userService: UserService) {}
 
-    @Post('/register')
-    @ApiOperation({ summary: 'Register a new user' })
+    @Post('/adduser')
+    @ApiOperation({ summary: 'Add a new user' })
     @ApiBody({ type: CreateUserDto })
-    @ApiCreatedResponse({ type: CreateUserDto })
-    @ApiForbiddenResponse({ description: 'Forbidden', type: ErrorResponseDto })
+    @ApiOkResponse({ type: UserDto })
+    @ApiBadRequestResponse({ description: 'Forbidden', type: ErrorResponseDto })
+    @ApiNotAcceptableResponse({ description: 'Forbidden', type: ErrorResponseDto })
     create(@Body() createUserDto: CreateUserDto) {
         return this.userService.create(createUserDto);
     }
@@ -33,7 +34,7 @@ export class UserController {
     @Get()
     @ApiOperation({ summary: 'Get all users' })
     @ApiOkResponse({ type: [CreateUserDto] })
-    @ApiBadGatewayResponse({ description: 'Forbidden', type: ErrorResponseDto })
+    @ApiBadRequestResponse({ description: 'Forbidden', type: ErrorResponseDto })
     @ApiNotFoundResponse({ description: 'No content', type: NotFoundResponseDto })
     findAll() {
         return this.userService.findAll();
@@ -42,7 +43,7 @@ export class UserController {
     @Get(':id')
     @ApiOperation({ summary: 'Get a user by ID' })
     @ApiOkResponse({ type: CreateUserDto })
-    @ApiBadGatewayResponse({ description: 'Forbidden', type: ErrorResponseDto })
+    @ApiBadRequestResponse({ description: 'Forbidden', type: ErrorResponseDto })
     @ApiNotFoundResponse({ description: 'No content', type: NotFoundResponseDto })
     findOne(@Param() params: UserIdDto) {
         return this.userService.findOne(params.id);
@@ -52,7 +53,7 @@ export class UserController {
     @ApiOperation({ summary: 'Update a user by ID' })
     @ApiBody({ type: UpdateUserDto })
     @ApiOkResponse({ type: UpdateUserDto })
-    @ApiBadGatewayResponse({ description: 'Forbidden', type: ErrorResponseDto })
+    @ApiBadRequestResponse({ description: 'Forbidden', type: ErrorResponseDto })
     @ApiNotFoundResponse({ description: 'No content', type: NotFoundResponseDto })
     update(@Param() params: UserIdDto, @Body() updateUserDto: UpdateUserDto) {
         return this.userService.update(params.id, updateUserDto);
@@ -61,7 +62,7 @@ export class UserController {
     @Delete(':id')
     @ApiOperation({ summary: 'Delete a user by ID' })
     @ApiOkResponse({ description: 'User deleted successfully' })
-    @ApiBadGatewayResponse({ description: 'Forbidden', type: ErrorResponseDto })
+    @ApiBadRequestResponse({ description: 'Forbidden', type: ErrorResponseDto })
     @ApiNotFoundResponse({ description: 'No content', type: NotFoundResponseDto })
     remove(@Param() params: UserIdDto) {
         return this.userService.remove(params.id);

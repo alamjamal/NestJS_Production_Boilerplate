@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export class ErrorResponseDto {
     @ApiProperty({
         type: 'number',
-        example: 500,
+        example: 400,
         description: 'HTTP status code'
     })
     statusCode: number;

@@ -4,7 +4,7 @@ import { IsUUID } from 'class-validator';
 
 export class UserIdDto {
     @ApiProperty({
-        example: '123e4567-e89b-12d3-a456-426614174000',
+        example: '237b395d-c73c-41c6-9d03-a93d778b0c2b',
         description: 'User ID'
     })
     @IsUUID(4, { message: 'ID must be a valid UUID v4' })

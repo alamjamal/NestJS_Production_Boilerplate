@@ -16,7 +16,7 @@ export class UserService {
             where: {
                 [Op.or]: [
                     // Use Sequelize's Op.or operator
-                    { email: createUserDto.email },
+                    { email: createUserDto.email ?? '' },
                     { mobile: createUserDto.mobile }
                 ]
             }

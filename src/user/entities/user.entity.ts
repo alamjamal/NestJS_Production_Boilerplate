@@ -4,7 +4,7 @@ import { Table, Column, Model, DataType } from 'sequelize-typescript';
 
 // import { DataTypes } from 'sequelize';  // Core ORM (Model Definitions, Queries)
 
-import { UserRole } from '../dto/create-user.dto';
+import { UserRole } from '../dto/user-dto';
 
 @Table({
     timestamps: true,
@@ -12,8 +12,8 @@ import { UserRole } from '../dto/create-user.dto';
     underscored: true // Use snake_case for column names
 })
 export class User extends Model {
-    //using ApiProperty to expose response to swagger
-    @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000', description: 'UUIDv7 Primary Key' })
+    //using ApiProperty to expose response to swagger (I think this is not needed)
+    // @ApiProperty({ example: '237b395d-c73c-41c6-9d03-a93d778b0c2b', description: 'UUIDv7 Primary Key' })
     @Column({
         type: DataType.UUIDV4,
         primaryKey: true,
@@ -24,7 +24,7 @@ export class User extends Model {
     })
     declare id: string;
 
-    @ApiProperty({ example: 'john_doe', description: 'Name' })
+    // @ApiProperty({ example: 'john_doe', description: 'Name' })
     @Column({
         type: DataType.STRING(20),
         validate: { len: [2, 20] },
@@ -32,7 +32,7 @@ export class User extends Model {
     })
     declare name: string;
 
-    @ApiProperty({ example: 'john_doe@example.com', description: 'Email' })
+    // @ApiProperty({ example: 'john_doe@example.com', description: 'Email' })
     @Column({
         type: DataType.STRING,
         unique: true,
@@ -41,7 +41,15 @@ export class User extends Model {
     })
     declare email: string;
 
-    @ApiProperty({ example: '7416815171', description: 'Mobile' })
+    // @ApiProperty({ example: 'efrysy', description: 'Password' })
+    @Column({
+        type: DataType.STRING,
+        allowNull: true,
+        validate: { len: [6, 20] }
+    })
+    declare password: string;
+
+    // @ApiProperty({ example: '7416815171', description: 'Mobile' })
     @Column({
         type: DataType.STRING,
         allowNull: false,
@@ -50,7 +58,7 @@ export class User extends Model {
     })
     declare mobile: string;
 
-    @ApiProperty({ example: 'read', description: 'User Roles' })
+    // @ApiProperty({ example: 'read', description: 'User Roles' })
     @Column({
         type: DataType.ENUM(...Object.values(UserRole)),
         defaultValue: UserRole.USER_READ,
