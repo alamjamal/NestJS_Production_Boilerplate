@@ -1,17 +1,21 @@
-import { Table, Model, Column, DataType, PrimaryKey, ForeignKey, BelongsTo } from 'sequelize-typescript';
-import { User } from 'src/user/entities/user.entity';
+import { Table, Model, Column, DataType, PrimaryKey } from 'sequelize-typescript';
+// import { User } from 'src/user/entities/user.entity';
 
 @Table({ tableName: 'otp', timestamps: false })
 export class OTP extends Model {
     // Make `mobile` the primary key and foreign key:
-    @PrimaryKey
-    @ForeignKey(() => User)
-    @Column({ type: DataType.STRING(10), allowNull: false })
-    declare mobile: string;
+    // @PrimaryKey
+    // @ForeignKey(() => User)
+    // @Column({ type: DataType.STRING(10), allowNull: false })
+    // declare mobile: string;
 
-    // Set up the relationship
-    @BelongsTo(() => User, 'mobile')
-    declare user: User;
+    // // Set up the relationship
+    // @BelongsTo(() => User, 'mobile')
+    // declare user: User;
+
+    @PrimaryKey
+    @Column({ type: DataType.STRING(10), allowNull: false })
+    mobile: string;
 
     @Column({
         type: DataType.STRING(6),

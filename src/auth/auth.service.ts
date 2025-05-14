@@ -36,6 +36,7 @@ export class AuthService {
         }
         const code = Math.floor(1000 + Math.random() * 9000).toString();
         // upsert an OTP record (new or overwrite previous)
+
         await this.otpModel.upsert({
             mobile: dto.mobile,
             code,
@@ -70,7 +71,7 @@ export class AuthService {
         // 4) find or create user
         let user: Partial<UserDto> = await this.userService.findByMobile(dto.mobile);
         if (!user) {
-            user = await this.userService.create({ mobile: dto.mobile });
+            user = await this.userService.create({ mobile: dto.mobile, isActivate: true });
         }
 
         // 5) issue JWT
