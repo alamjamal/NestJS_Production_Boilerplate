@@ -12,7 +12,7 @@ export class UserService {
         @InjectModel(User)
         private readonly userModel: typeof User // Inject the User model
     ) {}
-    async create(createUserDto: CreateUserDto): Promise<UserDto> {
+    async create(createUserDto: Partial<CreateUserDto>): Promise<CreateUserDto> {
         const user = await this.userModel.findOne<User>({
             where: {
                 [Op.or]: [

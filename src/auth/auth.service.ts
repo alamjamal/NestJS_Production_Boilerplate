@@ -5,8 +5,8 @@ import { OTP } from './model/auth.model';
 import { CreateOtpDto } from './dto/create-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { UserService } from '../user/user.service';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UserDto } from 'src/user/dto/user-dto';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
 
 type PayloadType = {
     sub?: string; // user ID
@@ -22,9 +22,19 @@ export class AuthService {
     ) {}
 
     async requestOtp(dto: CreateOtpDto) {
-        // generate a 6-digit code
+        const record = await this.otpModel.findOne({ where: { mobile: dto.mobile } });
+        if (record) {
+            if (record.expiresAt.getTime() > Date.now()) {
+                const remainingTime = record.expiresAt.getTime() - Date.now();
+                const remainingMinutes = Math.floor(remainingTime / (1000 * 60)).toString();
+                const remainingSeconds = Math.floor((remainingTime % (1000 * 60)) / 1000).toString();
+                // OTP expired, allow sending a new one
+                throw new BadRequestException(
+                    `OTP already sent, please wait for ${remainingMinutes}::${remainingSeconds} minutes`
+                );
+            }
+        }
         const code = Math.floor(1000 + Math.random() * 9000).toString();
-
         // upsert an OTP record (new or overwrite previous)
         await this.otpModel.upsert({
             mobile: dto.mobile,
@@ -58,7 +68,7 @@ export class AuthService {
         await record.save();
 
         // 4) find or create user
-        let user: UserDto = await this.userService.findByMobile(dto.mobile ?? '');
+        let user: Partial<UserDto> = await this.userService.findByMobile(dto.mobile);
         if (!user) {
             user = await this.userService.create({ mobile: dto.mobile });
         }

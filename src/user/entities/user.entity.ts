@@ -1,5 +1,4 @@
 // It uses the sequelize-typescript library to define the model and its properties.
-import { ApiProperty } from '@nestjs/swagger';
 import { Table, Column, Model, DataType } from 'sequelize-typescript';
 
 // import { DataTypes } from 'sequelize';  // Core ORM (Model Definitions, Queries)

@@ -1,6 +1,6 @@
 // src/otp/dto/otp.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, Length, Matches } from 'class-validator';
+import { IsNotEmpty, IsString, Length, Matches } from 'class-validator';
 
 export class OtpDto {
     @ApiProperty({
@@ -11,7 +11,7 @@ export class OtpDto {
     @Matches(/^[6-9]{1}[0-9]{9}$/, {
         message: 'Mobile number must be Valid Indian Number'
     })
-    // @IsNotEmpty()
+    @IsNotEmpty()
     // @MaxLength(10)
     // @MinLength(10)
     declare mobile: string;
@@ -21,8 +21,11 @@ export class OtpDto {
         description: '4-digit OTP code'
     })
     @IsString()
+    @IsNotEmpty()
     @Length(4, 4, { message: 'OTP code must be exactly 4 digits' })
-    @Matches(/^[0-9]{4}$/)
+    @Matches(/^[0-9]{4}$/, {
+        message: 'OTP code must be Valid Number'
+    })
     declare code: string;
 
     @ApiProperty({
