@@ -1,18 +1,17 @@
-import { matches, validate } from 'class-validator';
 import { Table, Model, Column, DataType, PrimaryKey, ForeignKey, BelongsTo } from 'sequelize-typescript';
 import { User } from 'src/user/entities/user.entity';
 
 @Table({ tableName: 'otp', timestamps: false })
-export class OTP extends Model<OTP> {
+export class OTP extends Model {
     // Make `mobile` the primary key and foreign key:
     @PrimaryKey
     @ForeignKey(() => User)
     @Column({ type: DataType.STRING(10), allowNull: false })
-    mobile: string;
+    declare mobile: string;
 
     // Set up the relationship
     @BelongsTo(() => User, 'mobile')
-    user: User;
+    declare user: User;
 
     @Column({
         type: DataType.STRING(6),
@@ -25,11 +24,11 @@ export class OTP extends Model<OTP> {
             is: /^[0-9]{4}$/
         }
     })
-    code: string;
+    declare code: string;
 
     @Column({ type: DataType.DATE, allowNull: false, defaultValue: DataType.NOW })
-    expiresAt: Date;
+    declare expiresAt: Date;
 
     @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: false })
-    isUsed: boolean;
+    declare isUsed: boolean;
 }

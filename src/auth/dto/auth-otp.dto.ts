@@ -7,7 +7,14 @@ export class OtpDto {
         example: '7416815171',
         description: 'Mobile number (primary & foreign key)'
     })
-    mobile: string;
+    @Length(10, 10, { message: 'Mobile Must Be 10 Digit' })
+    @Matches(/^[6-9]{1}[0-9]{9}$/, {
+        message: 'Mobile number must be Valid Indian Number'
+    })
+    // @IsNotEmpty()
+    // @MaxLength(10)
+    // @MinLength(10)
+    declare mobile: string;
 
     @ApiProperty({
         example: '1234',
@@ -16,7 +23,7 @@ export class OtpDto {
     @IsString()
     @Length(4, 4, { message: 'OTP code must be exactly 4 digits' })
     @Matches(/^[0-9]{4}$/)
-    code: string;
+    declare code: string;
 
     @ApiProperty({
         type: String,
@@ -24,11 +31,11 @@ export class OtpDto {
         example: new Date().toISOString(),
         description: 'When this OTP expires'
     })
-    expiresAt: Date;
+    declare expiresAt: Date;
 
     @ApiProperty({
         example: false,
         description: 'Whether this OTP has already been used'
     })
-    isUsed: boolean;
+    declare isUsed: boolean;
 }

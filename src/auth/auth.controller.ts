@@ -1,7 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateOtpDto } from './dto/create-otp.dto';
-import { VerifyOtpDto } from './dto/verify-otp.to';
+import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { ErrorResponseDto } from 'src/common/dto/error-response.dto';
 
@@ -16,8 +16,8 @@ export class AuthController {
     @ApiCreatedResponse({})
     @ApiBadRequestResponse({ description: 'Forbidden', type: ErrorResponseDto })
     requestOtp(@Body() type: CreateOtpDto) {
-        // return this.authService.requestOtp(type);
-        return type;
+        return this.authService.requestOtp(type);
+        // return type;
     }
 
     // POST /auth/verify-otp
@@ -28,7 +28,7 @@ export class AuthController {
     @ApiCreatedResponse({})
     @ApiBadRequestResponse({ description: 'Forbidden', type: ErrorResponseDto })
     verifyOtp(@Body() dto: VerifyOtpDto) {
-        // return this.authService.verifyOtp(dto);
-        return dto;
+        return this.authService.verifyOtp(dto);
+        // return dto;
     }
 }

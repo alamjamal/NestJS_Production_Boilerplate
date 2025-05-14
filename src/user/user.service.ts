@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
+import { UserDto } from './dto/user-dto';
 
 @Injectable()
 export class UserService {
@@ -11,7 +12,7 @@ export class UserService {
         @InjectModel(User)
         private readonly userModel: typeof User // Inject the User model
     ) {}
-    async create(createUserDto: CreateUserDto): Promise<CreateUserDto> {
+    async create(createUserDto: CreateUserDto): Promise<UserDto> {
         const user = await this.userModel.findOne<User>({
             where: {
                 [Op.or]: [
@@ -33,12 +34,27 @@ export class UserService {
     }
 
     async findOne(id: string): Promise<CreateUserDto> {
-        const user = await this.userModel.findByPk<User>(id);
+        // const user = await this.userModel.findByPk<User>(id);
+        const user = await this.userModel.findOne<User>({
+            where: { id: id }
+        });
         // if (!user) {
         //   throw new NotFoundException(`User with ID ${id} not found`);
         // }
 
         return user as CreateUserDto;
+    }
+
+    async findByMobile(mobile: string): Promise<UserDto> {
+        // const user = await this.userModel.findByPk<User>(id);
+        const user = await this.userModel.findOne<User>({
+            where: { mobile: mobile }
+        });
+        // if (!user) {
+        //     return null;
+        // }
+
+        return user as UserDto;
     }
 
     async update(id: string, updateUserDto: UpdateUserDto): Promise<number> {
