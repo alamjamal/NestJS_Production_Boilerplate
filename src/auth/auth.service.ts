@@ -1,5 +1,5 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { JsonWebTokenError, JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/sequelize';
 import { OTP } from './model/auth.model';
 import { CreateOtpDto } from './dto/create-otp.dto';
@@ -7,19 +7,62 @@ import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { UserService } from '../user/user.service';
 import { UserDto } from 'src/user/dto/user-dto';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { randomInt } from 'crypto';
+import { ConfigService } from '@nestjs/config';
 
 type PayloadType = {
-    sub?: string; // user ID
+    sub: string; // user ID
     mobile?: string; // user mobile
     role?: string; // user role
+    loginWith?: string; // login method (e.g., 'mobile', 'email')
+    uid?: string; // unique identifier for the user
 };
 @Injectable()
 export class AuthService {
     constructor(
         @InjectModel(OTP) private otpModel: typeof OTP,
         private readonly userService: UserService,
-        private readonly jwtService: JwtService
+        private readonly jwtService: JwtService,
+        private config: ConfigService
     ) {}
+
+    private verifyToken(token: string) {
+        try {
+            const payload: PayloadType = this.jwtService.verify(token, {
+                secret: this.config.get<string>('JWT_REFRESH_SECRET')
+            });
+            return payload;
+        } catch {
+            // Handle token verification error
+            throw new BadRequestException('Invalid token');
+        }
+    }
+    private generateTokens(user: UserDto, loginWith?: string, uid?: string) {
+        const payload: PayloadType = {
+            sub: user.id,
+            mobile: user.mobile,
+            role: user.role,
+            loginWith,
+            uid
+        };
+
+        // 1) access token
+        const accessToken = this.jwtService.sign(payload, {
+            secret: this.config.get<string>('JWT_SECRET'),
+            expiresIn: '1h' // or whatever you like
+        });
+
+        // 2) refresh token
+        const refreshToken = this.jwtService.sign(payload, {
+            secret: this.config.get<string>('JWT_REFRESH_SECRET'),
+            expiresIn: '7d' // typically longer
+        });
+
+        // 3) OPTIONAL: store a hash of the refresh token so you can revoke it later
+        // await this.userService.setCurrentRefreshToken(refreshToken, user.id);
+
+        return { accessToken, refreshToken };
+    }
 
     async requestOtp(dto: CreateOtpDto) {
         const record = await this.otpModel.findOne({ where: { mobile: dto.mobile } });
@@ -34,13 +77,14 @@ export class AuthService {
                 );
             }
         }
-        const code = Math.floor(1000 + Math.random() * 9000).toString();
-        // upsert an OTP record (new or overwrite previous)
+        // const code = Math.floor(1000 + Math.random() * 9000).toString();
+        const code = randomInt(1000, 10000).toString(); // crypto-secure, still very fast
 
+        // upsert an OTP record (new or overwrite previous)
         await this.otpModel.upsert({
             mobile: dto.mobile,
             code,
-            expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5 min expiry
+            expiresAt: new Date(Date.now() + 1 * 60 * 1000), // 5 min expiry
             isUsed: false
         });
 
@@ -75,9 +119,31 @@ export class AuthService {
         }
 
         // 5) issue JWT
-        const payload: PayloadType = { sub: user.id, mobile: user.mobile, role: user.role };
-        const token = this.jwtService.sign(payload);
+        // const payload: PayloadType = { sub: user.id, mobile: user.mobile, role: user.role };
+        // const token = this.jwtService.sign(payload);
 
-        return { accessToken: token };
+        const { accessToken, refreshToken } = this.generateTokens(user as UserDto, 'otp', user.id);
+        return { accessToken, refreshToken };
+    }
+
+    async generateAccessToken(RefToken: string) {
+        const payload: PayloadType = this.verifyToken(RefToken);
+        const user = await this.userService.findOne(payload.sub);
+        if (!user) {
+            throw new BadRequestException('User not found');
+        }
+        // const newPayload: PayloadType = { sub: user.id, mobile: user.mobile, role: user.role };
+        const { accessToken, refreshToken } = this.generateTokens(user as UserDto, payload.loginWith, payload.uid);
+        return { accessToken, refreshToken };
+    }
+
+    async logout(token: string) {
+        const payload = this.verifyToken(token);
+        const user = await this.userService.findOne(payload.sub);
+        if (!user) {
+            throw new BadRequestException('User not found');
+        }
+        // await this.otpService.blackListToken(user.id);
+        return { message: 'Logged out successfully' };
     }
 }

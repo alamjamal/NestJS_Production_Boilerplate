@@ -15,7 +15,7 @@ export class OTP extends Model {
 
     @PrimaryKey
     @Column({ type: DataType.STRING(10), allowNull: false })
-    mobile: string;
+    declare mobile: string;
 
     @Column({
         type: DataType.STRING(6),
