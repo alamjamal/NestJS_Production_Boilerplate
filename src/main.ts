@@ -5,6 +5,7 @@ import { corsOptions } from './options/corsOptions';
 import setupSwagger from './options/swaggerOptions';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { NotFoundInterceptor } from './common/interceptors/not-found.interceptor';
+import { FormatErrorPipe } from './common/pipes/format-error.pipe';
 // import { CustomValidationPipe } from './common/pipes/validation.pipe';
 
 async function bootstrap() {
@@ -16,29 +17,7 @@ async function bootstrap() {
     app.enableShutdownHooks();
     // app.setGlobalPrefix('api/v1');
 
-    app.useGlobalPipes(
-        new ValidationPipe({
-            whitelist: true, // this will strip away any properties that don't have decorators
-            forbidNonWhitelisted: true // this will throw an error if extra properties are sent
-        })
-    );
-
-    app.useGlobalPipes(
-        new ValidationPipe({
-            exceptionFactory: (errors) => {
-                const formattedErrors = errors.reduce((acc, error) => {
-                    acc[error.property] = Object.values(error.constraints || {});
-                    return acc;
-                }, {});
-                return new BadRequestException({
-                    statusCode: 400,
-                    message: 'Validation failed',
-                    errors: formattedErrors
-                });
-            }
-        })
-    );
-
+    app.useGlobalPipes(new FormatErrorPipe());
     app.useGlobalFilters(new HttpExceptionFilter());
     app.useGlobalInterceptors(new NotFoundInterceptor());
 

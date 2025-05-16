@@ -9,14 +9,8 @@ import { UserDto } from 'src/user/dto/user-dto';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { randomInt } from 'crypto';
 import { ConfigService } from '@nestjs/config';
+import { PayloadType } from 'src/common/type/Payload';
 
-type PayloadType = {
-    sub: string; // user ID
-    mobile?: string; // user mobile
-    role?: string; // user role
-    loginWith?: string; // login method (e.g., 'mobile', 'email')
-    uid?: string; // unique identifier for the user
-};
 @Injectable()
 export class AuthService {
     constructor(

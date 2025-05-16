@@ -9,7 +9,7 @@ export class NotFoundInterceptor implements NestInterceptor {
         return next.handle().pipe(
             tap((data: string | number | []) => {
                 if (data === null || data === 0 || (Array.isArray(data) && data.length === 0)) {
-                    throw new NotFoundException('Resource not found');
+                    throw new NotFoundException('Resource Not Found.');
                 }
             })
         );
