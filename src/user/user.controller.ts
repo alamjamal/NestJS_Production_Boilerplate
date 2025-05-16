@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -15,13 +15,15 @@ import { UserIdDto } from 'src/common/dto/user-id.dto';
 import { ErrorResponseDto } from 'src/common/dto/error-response.dto';
 import { NotFoundResponseDto } from 'src/common/dto/notfound-response.dto';
 import { UserDto } from './dto/user-dto';
-
+import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from 'src/auth-guard/guards/auth.guard';
+// @UseGuards(AuthGuard('jwt'))
 @Controller('User')
 @ApiTags('User')
 export class UserController {
     constructor(private readonly userService: UserService) {}
 
-    @Post('/adduser')
+    @Post('/add-user')
     @ApiOperation({ summary: 'Add a new user' })
     @ApiBody({ type: CreateUserDto })
     @ApiOkResponse({ type: UserDto })
@@ -31,7 +33,7 @@ export class UserController {
         return this.userService.create(createUserDto);
     }
 
-    // @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard)
     @Get()
     @ApiOperation({ summary: 'Get all users' })
     @ApiOkResponse({ type: [CreateUserDto] })

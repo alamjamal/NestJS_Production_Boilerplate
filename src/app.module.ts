@@ -41,6 +41,7 @@ import { AuthModule } from './auth/auth.module';
         }),
         // JwtModule.register({}),
         UserModule,
+        AuthModule,
         AuthModule
     ],
 

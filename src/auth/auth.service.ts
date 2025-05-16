@@ -85,8 +85,7 @@ export class AuthService {
         return code;
     }
 
-    async verifyOtp(dto: VerifyOtpDto) {
-        // 1) find OTP record
+    async validateOtp(dto: VerifyOtpDto) {
         const record = await this.otpModel.findOne({ where: { mobile: dto.mobile, code: dto.code } });
         if (!record) {
             throw new BadRequestException('Invalid OTP');
@@ -110,12 +109,15 @@ export class AuthService {
         if (!user) {
             user = await this.userService.create({ mobile: dto.mobile, isActivate: true });
         }
+        return user;
+    }
+    verifyOtp(user: UserDto) {
+        // 1) find OTP record
 
         // 5) issue JWT
         // const payload: PayloadType = { sub: user.id, mobile: user.mobile, role: user.role };
         // const token = this.jwtService.sign(payload);
-
-        const { accessToken, refreshToken } = this.generateTokens(user as UserDto, 'otp', user.id);
+        const { accessToken, refreshToken } = this.generateTokens(user, 'otp', user.id);
         return { accessToken, refreshToken };
     }
 
