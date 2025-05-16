@@ -1,6 +1,5 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { corsOptions } from './options/corsOptions';
 import setupSwagger from './options/swaggerOptions';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';

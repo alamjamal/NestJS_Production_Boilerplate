@@ -6,6 +6,7 @@ import { Request } from 'express';
 
 import { ConfigService } from '@nestjs/config';
 import { PayloadType } from 'src/common/type/Payload';
+import { RequestType } from 'src/common/type/Request';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -32,9 +33,13 @@ export class JwtAuthGuard implements CanActivate {
             const payload: PayloadType = await this.jwtService.verifyAsync(token, {
                 secret: this.config.get<string>('JWT_SECRET')
             });
-            request.user = payload;
+            request.user = {
+                id: payload.sub,
+                role: payload.role,
+                mobile: payload.mobile
+            } as RequestType;
         } catch {
-            throw new UnauthorizedException('Invalid token');
+            throw new UnauthorizedException('Invalid Token');
         }
         return true;
     }

@@ -1,4 +1,4 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { SequelizeModule } from '@nestjs/sequelize';
@@ -28,6 +28,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         UserModule
     ],
     providers: [AuthService],
-    controllers: [AuthController]
+    controllers: [AuthController],
+    exports: [AuthModule]
 })
 export class AuthModule {}

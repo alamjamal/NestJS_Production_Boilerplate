@@ -1,12 +1,11 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { JsonWebTokenError, JwtService } from '@nestjs/jwt';
+import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/sequelize';
 import { OTP } from './model/auth.model';
 import { CreateOtpDto } from './dto/create-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { UserService } from '../user/user.service';
 import { UserDto } from 'src/user/dto/user-dto';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { randomInt } from 'crypto';
 import { ConfigService } from '@nestjs/config';
 import { PayloadType } from 'src/common/type/Payload';
@@ -20,9 +19,9 @@ export class AuthService {
         private config: ConfigService
     ) {}
 
-    private verifyToken(token: string) {
+    private async verifyRefreshToken(token: string): Promise<PayloadType> {
         try {
-            const payload: PayloadType = this.jwtService.verify(token, {
+            const payload: PayloadType = await this.jwtService.verifyAsync(token, {
                 secret: this.config.get<string>('JWT_REFRESH_SECRET')
             });
             return payload;
@@ -121,7 +120,7 @@ export class AuthService {
     }
 
     async generateAccessToken(RefToken: string) {
-        const payload: PayloadType = this.verifyToken(RefToken);
+        const payload = await this.verifyRefreshToken(RefToken);
         const user = await this.userService.findOne(payload.sub);
         if (!user) {
             throw new BadRequestException('User not found');
@@ -132,7 +131,7 @@ export class AuthService {
     }
 
     async logout(token: string) {
-        const payload = this.verifyToken(token);
+        const payload = await this.verifyRefreshToken(token);
         const user = await this.userService.findOne(payload.sub);
         if (!user) {
             throw new BadRequestException('User not found');

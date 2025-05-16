@@ -1,12 +1,13 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Get, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateOtpDto } from './dto/create-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { ErrorResponseDto } from 'src/common/dto/error-response.dto';
-import { OtpDto } from './dto/auth-otp.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
-
+import { JwtAuthGuard } from './guards/auth.guard';
+import { RequestType } from 'src/common/type/Request';
+import { Request as ExpressRequest } from 'express';
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
@@ -49,5 +50,11 @@ export class AuthController {
     @ApiBadRequestResponse({ description: 'Forbidden', type: ErrorResponseDto })
     logOut(@Body() dto: RefreshTokenDto) {
         return this.authService.logout(dto.refreshToken);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('/me')
+    getCurrentUser(@Request() request: ExpressRequest) {
+        return request.user as RequestType;
     }
 }
